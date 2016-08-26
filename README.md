@@ -13,3 +13,13 @@ Citation Info  & Bibtex Code | Summary  | My Take | References to follow up |
 [**A Study of Heterogeneity in Recommendations for a Social Music Service**, *Alejandro*](http://arantxa.ii.uam.es/~cantador/doc/2010/hetrec10.pdf), Bellogin | Refer to Cantador one | Similar paper to that of Cantador dude. However, it introduces more performance metrics. Collaborative Filtering have more novel and diverse recommendations. IR has more coverage and better accuracy. TF-IDF yields better results because they didn't tune BM25. | TO- DO |
 [**Profiling vs. Time vs. Content: What does Matter for Top-k Publication Recommendation based on Twitter Profiles?**, *Chifumi*](http://arxiv.org/pdf/1603.07016.pdf), twitter | Building up a publication recommendation system. They used CF-IDF, which is basically giving more importance to certain terms. HCF-IDF is a fancy way to give weight to more prominent terms. CF-IDF with Sliding window concept yielded best results. LDA had an underwhelming performance. Used plenty of evaluation metrics to evaluate their models. | Question to ask myself : Can my research work club the similarity score / sliding window metrics and profiling methods? Authors were more interested in differences between the algorithms rather than behaviour of the algos. | - |
 [**A Query-oriented Approach for Relevance in Citation Networks**, *Totti*](http://www2016.net/proceedings/companion/p401.pdf), Totti | IQRA-TC uses citation recommendation graph. The weights are : Citation context (similarity between two papers), Query Similarity (similarity between query and article) and Age Decay (to penalize older articles). IQRA-ML uses approach similar to pagerank metrics. Publications, authors, venues and keywords are taken into account. TF-IDF score is used to calculate the pagrank metric. IQRA-TC works out the best. | They haven't tuned their baselines. Methodology of the choosing hyperparameters is not clear. Parameter sensitivity lacks for IQRA-TC. NDCG and MAP is used for evaluation for models. Although this paper raises an important point that different users want different search techniques, but their justification kinda leads to overfitting. | - |
+
+
+Reviewing the IR Models
+
+Model name | Link | Description |
+-----------|------|-------------|
+Pivoted Normalization | [Singhal et al.](http://dl.acm.org/citation.cfm?id=243206&dl=ACM&coll=DL&CFID=830327898&CFTOKEN=13998328) | - |
+Okapi BM25 | [Robertson et al.](http://dl.acm.org/citation.cfm?id=188561) | - |
+Dirchlet Prior | [Zhai et al.](http://dl.acm.org/citation.cfm?id=984322) | - |
+PL2 | [Amati et al.](http://dl.acm.org/citation.cfm?id=582416) | - |
