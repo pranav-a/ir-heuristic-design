@@ -19,7 +19,8 @@ Reviewing the IR Models
 
 Model name | Link | Description |
 -----------|------|-------------|
-Pivoted Normalization | [Singhal et al.](http://dl.acm.org/citation.cfm?id=243206&dl=ACM&coll=DL&CFID=830327898&CFTOKEN=13998328) | - |
-Okapi BM25 | [Robertson et al.](http://dl.acm.org/citation.cfm?id=188561) | - |
-Dirchlet Prior | [Zhai et al.](http://dl.acm.org/citation.cfm?id=984322) | - |
-PL2 | [Amati et al.](http://dl.acm.org/citation.cfm?id=582416) | - |
+Pivoted Normalization | [Singhal et al.](http://dl.acm.org/citation.cfm?id=243206&dl=ACM&coll=DL&CFID=830327898&CFTOKEN=13998328) | Vector Space model which allows length normalization using a pivot |
+Okapi BM25 | [Robertson et al.](http://dl.acm.org/citation.cfm?id=188561) | Probabilistic Retrieval model. Most popular. More complex version of Vector space model  |
+Dirchlet Prior | [Zhai et al.](http://dl.acm.org/citation.cfm?id=984322) | It is a retrieval model based on language modelling. The smoothing function is derived from dirchlet distribution. |
+PL2 | [Amati et al.](http://dl.acm.org/citation.cfm?id=582416) | It's a retrieval model based on divergence from randomness |
+MPtf2ln, MDtf2ln | Zhai et al. | Improved versions of Pivoted and Dirchlet functions. It maintains the balance between the extremities of the normalization effects |
