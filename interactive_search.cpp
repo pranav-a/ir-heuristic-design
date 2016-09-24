@@ -111,12 +111,12 @@ int main(int argc, char* argv[])
         if (text.empty())
             break;
 		
-		//Modify text string into kgrams
-		result = kgrams(text, 2);
-		output = cyclic(result);
-		text = "";
-		for(auto& kgram : output)
-			text = text + kgram + " ";
+	//Modify text string into kgrams
+	result = kgrams(text, 2);
+	output = cyclic(result);
+	text = "";
+	for(auto& kgram : output)
+		text = text + kgram + " ";
 		
         corpus::document query{doc_id{0}};
         query.content(text); // set the doc's content to be user input
