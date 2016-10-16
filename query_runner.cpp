@@ -181,10 +181,10 @@ float mdtf2ln_ranker::score_one(const index::score_data& sd)
 
 void mdtf2ln_tune (const std::shared_ptr<index::dblru_inverted_index> & idx, std::vector<corpus::document> & allqueries, index::ir_eval & eval)
 {
-	std::vector <double> alphavalues = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
-	std::vector <double> lambdavalues = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
-	std::vector <double> svalues = {0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4};
-	std::vector <double> muvalues = {500.0, 1000.0, 2000.0, 5000.0};
+	std::vector <double> alphavalues = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0};
+	std::vector <double> lambdavalues = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8};
+	std::vector <double> svalues = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0};
+	std::vector <double> muvalues = {10.0, 50.0, 100.0};
 
 	double maxmap = 0; // Stores the current maximum MAP value
 	double smax = 0.2;
@@ -283,10 +283,10 @@ float mptf2ln_ranker::score_one(const index::score_data& sd)
 
 void mptf2ln_tune (const std::shared_ptr<index::dblru_inverted_index> & idx, std::vector<corpus::document> & allqueries, index::ir_eval & eval)
 {
-    std::vector<double> alphavalues = {0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6}; // Different values for the parameter alpha
-    std::vector<double> lambdavalues = {0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9}; // Different values for the parameter lambda
-    std::vector<double> svalues = {0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6}; // Different values for the parameter alpha
-    std::vector<double> muvalues = {2000.0};
+	std::vector <double> alphavalues = {0.8, 1.0};
+	std::vector <double> lambdavalues = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8};
+	std::vector <double> svalues = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0};
+	std::vector <double> muvalues = {10.0, 50.0, 100.0};
 
     double maxmap = 0; // Stores the current maximum MAP value
     double smax = 0.2;
@@ -428,6 +428,117 @@ void bm25_tune(const std::shared_ptr<index::dblru_inverted_index> & idx, std::ve
 	std::cout << "The answer is k1 : " << k1max << ", b : " << bmax << ", k3 : " << k3max << ", with the MAP of " << maxmap << std::endl;
 }
 
+void pl_tune(const std::shared_ptr<index::dblru_inverted_index> & idx, std::vector<corpus::document> & allqueries, index::ir_eval & eval)
+{
+	std::vector <double> svalues = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+	std::ofstream outfile;
+	double maxmap = 0;
+	double smax = 0.0;
+
+	for (auto & s : svalues)
+	{
+		auto ranker = make_unique<meta::index::pivoted_length>(s);
+		for (std::vector<corpus::document>::iterator query = allqueries.begin(); query != allqueries.end(); ++query)
+		{
+			auto ranking = ranker->score(*idx, *query, 10);
+			eval.avg_p(ranking,(*query).id(),5);
+		}
+		outfile.open("pl_results.txt", std::ios_base::app);
+		outfile << s << "\t" << eval.map() << "\n";
+		outfile.close();
+		if(eval.map() > maxmap)
+		{
+			maxmap = eval.map();
+			smax = s;
+		}
+		eval.reset_stats();
+	}
+	std::cout << "The answer is s : " << smax << ", with the MAP of " << maxmap << std::endl;
+}
+
+void jm_tune(const std::shared_ptr<index::dblru_inverted_index> & idx, std::vector<corpus::document> & allqueries, index::ir_eval & eval)
+{
+	std::vector <double> lambdavalues = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+	std::ofstream outfile;
+	double maxmap = 0;
+	double lambdamax = 0.0;
+
+	for (auto & lambda : lambdavalues)
+	{
+		auto ranker = make_unique<meta::index::jelinek_mercer>(lambda);
+		for (std::vector<corpus::document>::iterator query = allqueries.begin(); query != allqueries.end(); ++query)
+		{
+			auto ranking = ranker->score(*idx, *query, 10);
+			eval.avg_p(ranking,(*query).id(),5);
+		}
+		outfile.open("jm_results.txt", std::ios_base::app);
+		outfile << lambda << "\t" << eval.map() << "\n";
+		outfile.close();
+		if(eval.map() > maxmap)
+		{
+			maxmap = eval.map();
+			lambdamax = lambda;
+		}
+		eval.reset_stats();
+	}
+	std::cout << "The answer is lambda : " << lambdamax << ", with the MAP of " << maxmap << std::endl;
+}
+
+void dirichlet_tune(const std::shared_ptr<index::dblru_inverted_index> & idx, std::vector<corpus::document> & allqueries, index::ir_eval & eval)
+{
+	std::vector <double> muvalues = {0.0, 50.0, 100.0, 500.0, 1000.0, 1500.0, 2000.0, 2500.0, 3000.0, 3500.0, 4000.0};
+	std::ofstream outfile;
+	double maxmap = 0;
+	double mumax = 0.0;
+
+	for (auto & mu : muvalues)
+	{
+		auto ranker = make_unique<meta::index::dirichlet_prior>(mu);
+		for (std::vector<corpus::document>::iterator query = allqueries.begin(); query != allqueries.end(); ++query)
+		{
+			auto ranking = ranker->score(*idx, *query, 10);
+			eval.avg_p(ranking,(*query).id(),5);
+		}
+		outfile.open("dirichlet_results.txt", std::ios_base::app);
+		outfile << mu << "\t" << eval.map() << "\n";
+		outfile.close();
+		if(eval.map() > maxmap)
+		{
+			maxmap = eval.map();
+			mumax = mu;
+		}
+		eval.reset_stats();
+	}
+	std::cout << "The answer is mu : " << mumax << ", with the MAP of " << maxmap << std::endl;
+}
+
+// void discount_tune(const std::shared_ptr<index::dblru_inverted_index> & idx, std::vector<corpus::document> & allqueries, index::ir_eval & eval)
+// {
+// 	std::vector <double> deltavalues = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+// 	std::ofstream outfile;
+// 	double maxmap = 0;
+// 	double deltamax = 0.0;
+//
+// 	for (auto & delta : deltavalues)
+// 	{
+// 		auto ranker = make_unique<meta::index::ranker::absolute_discount>(delta);
+// 		for (std::vector<corpus::document>::iterator query = allqueries.begin(); query != allqueries.end(); ++query)
+// 		{
+// 			auto ranking = ranker->score(*idx, *query, 10);
+// 			eval.avg_p(ranking,(*query).id(),5);
+// 		}
+// 		outfile.open("discount_results.txt", std::ios_base::app);
+// 		outfile << delta << "\t" << eval.map() << "\n";
+// 		outfile.close();
+// 		if(eval.map() > maxmap)
+// 		{
+// 			maxmap = eval.map();
+// 			deltamax = delta;
+// 		}
+// 		eval.reset_stats();
+// 	}
+// 	std::cout << "The answer is delta : " << deltamax << ", with the MAP of " << maxmap << std::endl;
+// }
 
 int main(int argc, char* argv[])
 {
@@ -465,6 +576,6 @@ int main(int argc, char* argv[])
 		allqueries.push_back(query);
 		i++;
 	}
-	//bm25_tune (idx, allqueries, eval);
-	pl2_tune (idx, allqueries, eval);
+	mptf2ln_tune (idx, allqueries, eval);
+	mdtf2ln_tune (idx, allqueries, eval);
 }
